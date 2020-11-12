@@ -38,37 +38,18 @@ def load_fin(userid, password, tickers):
     driver.find_element_by_xpath('//*[@id="login-signin"]').click()
     time.sleep(5)
 
-    for t in range(len(tickers)):
+    for t in tickers:
 
-        # Income Statement
-        driver.get('https://finance.yahoo.com/quote/' + tickers[t] + '/financials?p=' + tickers[t])
-        time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
-        time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
-        time.sleep(3)
+        statements = ['/financials?p=', '/balance-sheet?p=', '/cash-flow?p=', '/key-statistics?p=']
 
-        # Balance Sheet
-        driver.get('https://finance.yahoo.com/quote/' + tickers[t] + '/balance-sheet?p=' + tickers[t])
-        time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
-        time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
-        time.sleep(3)
+        for s in range(len(statements)):
 
-        # Cash Flows
-        driver.get('https://finance.yahoo.com/quote/' + tickers[t] + '/cash-flow?p=' + tickers[t])
-        time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
-        time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
-        time.sleep(3)
-
-        # Stats
-        driver.get('https://finance.yahoo.com/quote/' + tickers[t] + '/key-statistics?p=' + tickers[t])
-        time.sleep(2)
-        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
-        time.sleep(2)
+            driver.get('https://finance.yahoo.com/quote/' + t + s + t)
+            time.sleep(3)
+            driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
+            time.sleep(3)
+            driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+            time.sleep(3)
 
     driver.quit()
 
