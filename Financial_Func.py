@@ -42,7 +42,7 @@ def load_fin(userid, password, tickers):
 
         statements = ['/financials?p=', '/balance-sheet?p=', '/cash-flow?p=', '/key-statistics?p=']
 
-        for s in range(len(statements)):
+        for s in statements:
 
             driver.get('https://finance.yahoo.com/quote/' + t + s + t)
             time.sleep(3)
