@@ -12,7 +12,10 @@ from selenium import webdriver
 import time
 import os
 import glob
+import pandas as pd
 
+###############################################################################################
+# Download financials
 def load_fin(userid, password, tickers):
 
     # Clear prior downloads
@@ -52,4 +55,22 @@ def load_fin(userid, password, tickers):
             time.sleep(3)
 
     driver.quit()
+
+###############################################################################################
+# Merge financials
+
+# Import files
+def import_fin():
+    files = glob.glob('C:/Users/gerard/Downloads/*')
+    financials = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
+
+    for f in range(len(files)):
+        file = pd.read_csv(files[f])
+        file['Comp'] = files[f][26:30].replace('_', '')
+        file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
+
+        financials = pd.concat([financials, file], axis=0, ignore_index=True)
+
+
+
 
