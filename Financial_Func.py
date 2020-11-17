@@ -13,6 +13,7 @@ import time
 import os
 import glob
 import pandas as pd
+from datetime import date
 
 ###############################################################################################
 # Download financials
@@ -56,12 +57,13 @@ def load_fin(userid, password, tickers):
 
     driver.quit()
 
+    del downloads, d, driver, statements
+
 ###############################################################################################
 # Merge financials
 
-# Import files
 def import_fin():
-    files = glob.glob('C:/Users/gerard/Downloads/*')
+    files = [f for f in glob.glob('C:/Users/gerard/Downloads/*') if 'valuation' not in f]
     financials = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
 
     for f in range(len(files)):
@@ -70,7 +72,29 @@ def import_fin():
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
 
         financials = pd.concat([financials, file], axis=0, ignore_index=True)
+        financials = financials.loc[financials.Date != 'ttm', :]
 
+        financials['Date'] = pd.to_datetime(financials['Date'])
 
+    del file, f, files
+
+###############################################################################################
+# Merge stats
+
+def import_stats():
+    files = [f for f in glob.glob('C:/Users/gerard/Downloads/*') if 'valuation' in f]
+    stats = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
+
+    for f in range(len(files)):
+        file = pd.read_csv(files[f])
+        file['Comp'] = files[f][26:30].replace('_', '')
+        file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
+
+        stats = pd.concat([stats, file], axis=0, ignore_index=True)
+        stats.loc[stats.Date == 'ttm', 'Date'] = date.today()
+
+        stats['Date'] = pd.to_datetime(stats['Date'])
+
+    del file, f, files
 
 
