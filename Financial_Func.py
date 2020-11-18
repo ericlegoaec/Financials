@@ -67,14 +67,18 @@ def import_fin():
     financials = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
 
     for f in range(len(files)):
-        file = pd.read_csv(files[f])
+        file = pd.read_csv(files[f], thousands=',')
         file['Comp'] = files[f][26:30].replace('_', '')
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
 
         financials = pd.concat([financials, file], axis=0, ignore_index=True)
         financials = financials.loc[financials.Date != 'ttm', :]
 
+        # Format
         financials['Date'] = pd.to_datetime(financials['Date'])
+        financials['Value'] = pd.to_numeric(financials['Value'])
+
+    return financials
 
     del file, f, files
 
@@ -86,14 +90,17 @@ def import_stats():
     stats = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
 
     for f in range(len(files)):
-        file = pd.read_csv(files[f])
+        file = pd.read_csv(files[f], thousands=',')
         file['Comp'] = files[f][26:30].replace('_', '')
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
 
         stats = pd.concat([stats, file], axis=0, ignore_index=True)
         stats.loc[stats.Date == 'ttm', 'Date'] = date.today()
 
+        # Format
         stats['Date'] = pd.to_datetime(stats['Date'])
+
+    return stats
 
     del file, f, files
 
