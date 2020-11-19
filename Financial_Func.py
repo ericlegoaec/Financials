@@ -104,4 +104,23 @@ def import_stats():
 
     del file, f, files
 
+################################################################################################
+# Revenue Growth Trend
 
+def growth_calc(data):
+    field = [
+        'TotalRevenue', 'CostOfRevenue', 'OtherGandA', 'SellingAndMarketingExpense' ,
+        'ResearchAndDevelopment', 'OperatingIncome'
+    ]
+
+    # Calc year over year growth rate
+    for f in field[: -1]:
+        rev_temp = fin.groupby(['Comp', 'Date'])
+        rev_temp[f] = pd.Series(fin[fin.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f), index=rev_temp)
+        rev_temp[f + '_gro'] = pd.Series(rev_temp.groupby('Comp')[f].apply(lambda g: g.pct_change(periods=4)))
+
+    del f
+
+    # Calc cost as a percent of revenue
+    for f in  field[: -1][1:]:
+        rev_temp[rev_temp.f]
