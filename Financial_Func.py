@@ -77,6 +77,7 @@ def import_fin():
         # Format
         financials['Date'] = pd.to_datetime(financials['Date'])
         financials['Value'] = pd.to_numeric(financials['Value'])
+        financials['name'] = financials.name.str.strip()
 
     return financials
 
@@ -99,6 +100,7 @@ def import_stats():
 
         # Format
         stats['Date'] = pd.to_datetime(stats['Date'])
+        stats['name'] = stats.name.str.strip()
 
     return stats
 
@@ -114,10 +116,12 @@ def growth_calc(data):
     ]
 
     # Calc year over year growth rate
+    rev = fin.groupby(['Comp', 'Date'])
     for f in field[: -1]:
-        rev_temp = fin.groupby(['Comp', 'Date'])
-        rev_temp[f] = pd.Series(fin[fin.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f), index=rev_temp)
-        rev_temp[f + '_gro'] = pd.Series(rev_temp.groupby('Comp')[f].apply(lambda g: g.pct_change(periods=4)))
+        rev_temp = fin[fin.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f).reset_index()
+        rev_temp[f + '_gro'] = rev_temp.groupby('Comp')[f].apply(lambda g: g.pct_change(periods=4))
+
+        rev = pd.concat([rev, rev_temp], axis=1, join='inner')
 
     del f
 

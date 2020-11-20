@@ -17,3 +17,5 @@ fin[fin.name == 'CostOfRevenue'].groupby(['Comp', 'Date'])['Value'].sum().reset_
 
 # Plot
 sns.lineplot(x='Date', y='Rev_Gro', hue='Comp', data=rev_gro)
+
+# Sales to S&M Spend ratio
