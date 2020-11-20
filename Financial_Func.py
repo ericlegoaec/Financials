@@ -109,22 +109,21 @@ def import_stats():
 ################################################################################################
 # Revenue Growth Trend
 
-def growth_calc(data):
+def rev_gro_calc(df):
     field = [
         'TotalRevenue', 'CostOfRevenue', 'OtherGandA', 'SellingAndMarketingExpense' ,
         'ResearchAndDevelopment', 'OperatingIncome'
     ]
 
     # Calc year over year growth rate
-    rev = fin.groupby(['Comp', 'Date'])
+    rev = df.groupby(['Comp', 'Date'])['Value'].sum().reset_index()[['Comp', 'Date']]
+
     for f in field[: -1]:
-        rev_temp = fin[fin.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f).reset_index()
-        rev_temp[f + '_gro'] = rev_temp.groupby('Comp')[f].apply(lambda g: g.pct_change(periods=4))
+        rev_temp = df[df.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f).reset_index()
+        rev_temp[f + '_Gro'] = rev_temp.groupby('Comp')[f].apply(lambda g: g.pct_change(periods=4))
 
-        rev = pd.concat([rev, rev_temp], axis=1, join='inner')
+        rev = pd.concat([rev, rev_temp[[f, f + '_Gro']]], axis=1)
 
-    del f
+    return rev
 
-    # Calc cost as a percent of revenue
-    for f in  field[: -1][1:]:
-        rev_temp[rev_temp.f]
+    del f, field, rev_temp, rev
