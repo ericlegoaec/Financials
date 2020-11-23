@@ -14,6 +14,8 @@ import os
 import glob
 import pandas as pd
 from datetime import date
+import matplotlib.pyplot as plt
+import numpy as np
 
 ###############################################################################################
 # Download financials
@@ -44,20 +46,39 @@ def load_fin(userid, password, tickers):
 
     for t in tickers:
 
-        statements = ['/financials?p=', '/balance-sheet?p=', '/cash-flow?p=', '/key-statistics?p=']
+        # Income Statement
+        driver.get('https://finance.yahoo.com/quote/' + t + '/financials?p=' + t)
+        time.sleep(3)
+        driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
+        time.sleep(3)
+        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+        time.sleep(3)
 
-        for s in statements:
+        # Balance Sheet
+        driver.get('https://finance.yahoo.com/quote/' + t + '/balance-sheet?p=' + t)
+        time.sleep(3)
+        driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
+        time.sleep(3)
+        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+        time.sleep(3)
 
-            driver.get('https://finance.yahoo.com/quote/' + t + s + t)
-            time.sleep(3)
-            driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
-            time.sleep(3)
-            driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
-            time.sleep(3)
+        # Cash Flows
+        driver.get('https://finance.yahoo.com/quote/' + t + '/cash-flow?p=' + t)
+        time.sleep(3)
+        driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
+        time.sleep(3)
+        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+        time.sleep(3)
+
+        # Statistics
+        driver.get('https://finance.yahoo.com/quote/' + t + '/key-statistics?p=' + t)
+        time.sleep(3)
+        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+        time.sleep(3)
 
     driver.quit()
 
-    del downloads, d, driver, statements
+    del downloads, d, driver, t
 
 ###############################################################################################
 # Merge financials
@@ -67,10 +88,17 @@ def import_fin():
     financials = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
 
     for f in range(len(files)):
+
+        # Load file
         file = pd.read_csv(files[f], thousands=',')
-        file['Comp'] = files[f][26:30].replace('_', '')
+
+        # Cleanup ticker
+        file['Comp'] = files[f][26:30].replace('_', '').replace('q', '').replace('u', '')
+
+        # Convert to long format
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
 
+        # Append
         financials = pd.concat([financials, file], axis=0, ignore_index=True)
         financials = financials.loc[financials.Date != 'ttm', :]
 
@@ -91,10 +119,17 @@ def import_stats():
     stats = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
 
     for f in range(len(files)):
+
+        # Load file
         file = pd.read_csv(files[f], thousands=',')
-        file['Comp'] = files[f][26:30].replace('_', '')
+
+        # Cleanup ticker
+        file['Comp'] = files[f][26:30].replace('_', '').replace('q', '').replace('u', '')
+
+        # Convert to long format
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
 
+        # Append
         stats = pd.concat([stats, file], axis=0, ignore_index=True)
         stats.loc[stats.Date == 'ttm', 'Date'] = date.today()
 
@@ -127,3 +162,40 @@ def rev_gro_calc(df):
     return rev
 
     del f, field, rev_temp, rev
+
+################################################################################################
+# Revenue Trends
+
+def rev_trend(data, ticker):
+
+    # Source Data
+    gro_stats = []
+    rev_stats = data.loc[
+        data.Comp == ticker, [
+            'Date',
+            'TotalRevenue',
+            'TotalRevenue_Gro',
+            'CostOfRevenue_Gro',
+            'OtherGandA_Gro',
+            'SellingAndMarketingExpense_Gro',
+            'ResearchAndDevelopment_Gro'
+        ]
+    ]
+
+    # Plot
+    ax1 = plt.subplot(111)
+    ax2 = ax1.twinx()
+    ax1.bar(rev_stats.Date, rev_stats.TotalRevenue, width=80, color='Lightgray', label='Revenue')
+    ax2.plot(rev_stats.Date, rev_stats['TotalRevenue_Gro'], 'o-', color='black', label='Revenue Growth', linewidth=3)
+    #ax2.plot(rev_stats.Date, rev_stats['CostOfRevenue_Gro'], '.-', color='purple', label='COGS Growth')
+    #ax2.plot(rev_stats.Date, rev_stats['OtherGandA_Gro'], '.-', color='orange', label='G&A Growth')
+    ax2.plot(rev_stats.Date, rev_stats['SellingAndMarketingExpense_Gro'], '.-', color='green', label='S&M Growth')
+    ax2.plot(rev_stats.Date, rev_stats['ResearchAndDevelopment_Gro'], '.-', color='blue', label='R&D Growth')
+
+    ax2.legend(loc='upper left')
+
+    ax1.set_ylabel('Total Revenue ($00 millions)')
+    ax2.set_ylabel('Growth Rate (YoY)')
+    plt.title(ticker +  ' Revenue Growth (YoY)')
+
+# Ratio: Sales per S&M spend
