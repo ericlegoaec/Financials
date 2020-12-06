@@ -166,12 +166,13 @@ def rev_gro_calc(df):
 ################################################################################################
 # Revenue Trends
 
-def rev_trend(data, ticker):
+def rev_trend(data, ticker, range=max_time):
 
     # Source Data
     gro_stats = []
     rev_stats = data.loc[
-        data.Comp == ticker, [
+        data.Comp == ticker,
+        [
             'Date',
             'TotalRevenue',
             'TotalRevenue_Gro',
@@ -182,13 +183,18 @@ def rev_trend(data, ticker):
         ]
     ]
 
+    # Time frame
+    max_time = len(rev_stats.index) - 1
+
+    rev_stats = rev_stats.iloc[max_time - range: max_time, :]
+
     # Plot
     ax1 = plt.subplot(111)
     ax2 = ax1.twinx()
     ax1.bar(rev_stats.Date, rev_stats.TotalRevenue, width=80, color='Lightgray', label='Revenue')
     ax2.plot(rev_stats.Date, rev_stats['TotalRevenue_Gro'], 'o-', color='black', label='Revenue Growth', linewidth=3)
-    #ax2.plot(rev_stats.Date, rev_stats['CostOfRevenue_Gro'], '.-', color='purple', label='COGS Growth')
-    #ax2.plot(rev_stats.Date, rev_stats['OtherGandA_Gro'], '.-', color='orange', label='G&A Growth')
+    ax2.plot(rev_stats.Date, rev_stats['CostOfRevenue_Gro'], '.-', color='purple', label='COGS Growth')
+    ax2.plot(rev_stats.Date, rev_stats['OtherGandA_Gro'], '.-', color='orange', label='G&A Growth')
     ax2.plot(rev_stats.Date, rev_stats['SellingAndMarketingExpense_Gro'], '.-', color='green', label='S&M Growth')
     ax2.plot(rev_stats.Date, rev_stats['ResearchAndDevelopment_Gro'], '.-', color='blue', label='R&D Growth')
 
