@@ -166,7 +166,7 @@ def rev_gro_calc(df):
 ################################################################################################
 # Revenue Trends
 
-def rev_trend(data, ticker, range=max_time):
+def rev_trend(data, ticker, range=60):
 
     # Source Data
     gro_stats = []
@@ -183,25 +183,57 @@ def rev_trend(data, ticker, range=max_time):
         ]
     ]
 
-    # Time frame
-    max_time = len(rev_stats.index) - 1
+    # Format to Millions
+    rev_stats['TotalRevenue'] = rev_stats.TotalRevenue / 1000000
 
-    rev_stats = rev_stats.iloc[max_time - range: max_time, :]
+    # Time frame
+    rev_stats = rev_stats.tail(range)
 
     # Plot
+    plt.figure()
     ax1 = plt.subplot(111)
     ax2 = ax1.twinx()
     ax1.bar(rev_stats.Date, rev_stats.TotalRevenue, width=80, color='Lightgray', label='Revenue')
     ax2.plot(rev_stats.Date, rev_stats['TotalRevenue_Gro'], 'o-', color='black', label='Revenue Growth', linewidth=3)
-    ax2.plot(rev_stats.Date, rev_stats['CostOfRevenue_Gro'], '.-', color='purple', label='COGS Growth')
-    ax2.plot(rev_stats.Date, rev_stats['OtherGandA_Gro'], '.-', color='orange', label='G&A Growth')
+    #ax2.plot(rev_stats.Date, rev_stats['CostOfRevenue_Gro'], '.-', color='purple', label='COGS Growth')
+    #ax2.plot(rev_stats.Date, rev_stats['OtherGandA_Gro'], '.-', color='orange', label='G&A Growth')
     ax2.plot(rev_stats.Date, rev_stats['SellingAndMarketingExpense_Gro'], '.-', color='green', label='S&M Growth')
     ax2.plot(rev_stats.Date, rev_stats['ResearchAndDevelopment_Gro'], '.-', color='blue', label='R&D Growth')
 
     ax2.legend(loc='upper left')
 
-    ax1.set_ylabel('Total Revenue ($00 millions)')
+    ax1.set_ylabel('Total Revenue (millions)')
     ax2.set_ylabel('Growth Rate (YoY)')
     plt.title(ticker +  ' Revenue Growth (YoY)')
+    plt.grid(True)
+    plt.show()
+
+
+################################################################################################
+# Revenue Trends
+def ps_scat(stats_df, rev_df):
+    scat = pd.merge(
+        stats_df.loc[(stats_df.Date == stats_df.Date.max()) & (stats_df.name == 'PsRatio'), ['Comp', 'Value']],
+        pd.merge(
+            rev_df.groupby(['Comp'])['Date'].max(),
+            rev_df[['Comp', 'Date', 'TotalRevenue_Gro']],
+            how='left',
+            on=['Comp', 'Date']
+        )[['Comp', 'TotalRevenue_Gro']],
+        how='left',
+        on='Comp'
+    )
+
+    plt.figure()
+    ax = plt.subplot(111)
+    plt.grid(True)
+    ax.plot([0, 1], [0, 1], color='red', transform=ax.transAxes, linewidth=0.5)
+    ax.scatter(scat.Value, scat.TotalRevenue_Gro)
+    ax.set_ylabel('Revenue Growth')
+    ax.set_xlabel('Price/Sale Ratio')
+    plt.title('P/S Ratio to Rev Growth (Most Recent)')
+    for i, txt in enumerate(scat.Comp):
+        ax.annotate(txt, (scat.Value[i] + .01, scat.TotalRevenue_Gro[i] + .01))
+    plt.show()
 
 # Ratio: Sales per S&M spend
