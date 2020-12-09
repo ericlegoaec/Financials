@@ -15,6 +15,7 @@ import glob
 import pandas as pd
 from datetime import date
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 
 ###############################################################################################
@@ -142,7 +143,7 @@ def import_stats():
     del file, f, files
 
 ################################################################################################
-# Revenue Growth Trend
+# Revenue Growth Data Frame
 
 def rev_gro_calc(df):
     field = [
@@ -163,8 +164,23 @@ def rev_gro_calc(df):
 
     del f, field, rev_temp, rev
 
+
 ################################################################################################
-# Revenue Trends
+# Group Revenue Growth Trends
+def group_trend(rev_df, start_yr=2010):
+
+    sns.lineplot(
+        x='Date',
+        y='TotalRevenue_Gro',
+        hue='Comp',
+        data=rev_df[rev_df.Date > str(start_yr)],
+        linewidth=3
+    ).set_title('Revenue Growth Trend')
+    plt.grid()
+    plt.show()
+
+################################################################################################
+# Individual Stock Revenue Trends
 
 def rev_trend(data, ticker, range=60):
 
@@ -209,31 +225,64 @@ def rev_trend(data, ticker, range=60):
     plt.show()
 
 
+
 ################################################################################################
-# Revenue Trends
+# Price/Sales Group Trend
+def ps_trend(data, start_yr=2010):
+
+    plt.figure()
+    sns.lineplot(
+        x='Date',
+        y='Value',
+        hue='Comp',
+        data=data.loc[(data.name == 'PsRatio')&(data.Date >= str(start_yr)), :],
+        linewidth=3
+    )
+    plt.ylabel('Price/Sales Ratio')
+    plt.title('P/S Ratio Trend')
+    plt.grid()
+    plt.show()
+
+
+################################################################################################
+# Price/Sales Group Scatter Plot
+
 def ps_scat(stats_df, rev_df):
     scat = pd.merge(
-        stats_df.loc[(stats_df.Date == stats_df.Date.max()) & (stats_df.name == 'PsRatio'), ['Comp', 'Value']],
+        stats_df[stats_df.Date == stats_df.Date.max()]
+            .groupby(['Comp', 'name'])['Value']
+            .sum()
+            .unstack()[['PsRatio']],
         pd.merge(
             rev_df.groupby(['Comp'])['Date'].max(),
-            rev_df[['Comp', 'Date', 'TotalRevenue_Gro']],
+            rev_df[['Comp', 'Date', 'TotalRevenue_Gro', 'TotalRevenue']],
             how='left',
             on=['Comp', 'Date']
-        )[['Comp', 'TotalRevenue_Gro']],
+        )[['Comp', 'TotalRevenue_Gro', 'TotalRevenue']],
         how='left',
         on='Comp'
     )
+
+    radius = scat.TotalRevenue/1000000
 
     plt.figure()
     ax = plt.subplot(111)
     plt.grid(True)
     ax.plot([0, 1], [0, 1], color='red', transform=ax.transAxes, linewidth=0.5)
-    ax.scatter(scat.Value, scat.TotalRevenue_Gro)
+    ax.scatter(x=scat.PsRatio, y=scat.TotalRevenue_Gro, alpha=0.5, s=radius)
     ax.set_ylabel('Revenue Growth')
     ax.set_xlabel('Price/Sale Ratio')
     plt.title('P/S Ratio to Rev Growth (Most Recent)')
     for i, txt in enumerate(scat.Comp):
-        ax.annotate(txt, (scat.Value[i] + .01, scat.TotalRevenue_Gro[i] + .01))
+        ax.annotate(txt, (scat.PsRatio[i] + radius[i]/1000 + 0.8, scat.TotalRevenue_Gro[i]))
+    for m, mc in enumerate(scat.TotalRevenue):
+        ax.annotate(
+            '$' + str(int(mc/1000000)) + 'm',
+            (scat.PsRatio[m] + radius[m]/1000 + 0.8, scat.TotalRevenue_Gro[m] - 0.015),
+            size=8
+        )
     plt.show()
+
+    print(scat)
 
 # Ratio: Sales per S&M spend
