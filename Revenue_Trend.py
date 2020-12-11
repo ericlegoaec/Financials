@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns
 from Financial_Func import load_fin, import_fin, import_stats, rev_gro_calc, rev_trend, ps_scat, group_trend, ps_trend
 
-tickers = ['SMAR', 'AVLR', 'BL', 'COUP', 'TEAM', 'APPF', 'DDOG']
+tickers = ['NVDA', 'AMD', 'MU', 'QCOM', 'AMT', 'INTC', 'QRVO', 'SWKS']
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
@@ -16,7 +16,7 @@ revenue = rev_gro_calc(fin)
 group_trend(rev_df=revenue, start_yr=2015)
 
 # Revenue trend
-rev_trend(data=revenue, ticker='TEAM')
+rev_trend(data=revenue, ticker='NVDA')
 [rev_trend(revenue, t) for t in tickers]
 
 # Price to Sales Hisotry

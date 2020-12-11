@@ -213,8 +213,8 @@ def rev_trend(data, ticker, range=60):
     ax2.plot(rev_stats.Date, rev_stats['TotalRevenue_Gro'], 'o-', color='black', label='Revenue Growth', linewidth=3)
     #ax2.plot(rev_stats.Date, rev_stats['CostOfRevenue_Gro'], '.-', color='purple', label='COGS Growth')
     #ax2.plot(rev_stats.Date, rev_stats['OtherGandA_Gro'], '.-', color='orange', label='G&A Growth')
-    ax2.plot(rev_stats.Date, rev_stats['SellingAndMarketingExpense_Gro'], '.-', color='green', label='S&M Growth')
-    ax2.plot(rev_stats.Date, rev_stats['ResearchAndDevelopment_Gro'], '.-', color='blue', label='R&D Growth')
+    #ax2.plot(rev_stats.Date, rev_stats['SellingAndMarketingExpense_Gro'], '.-', color='green', label='S&M Growth')
+    #ax2.plot(rev_stats.Date, rev_stats['ResearchAndDevelopment_Gro'], '.-', color='blue', label='R&D Growth')
 
     ax2.legend(loc='upper left')
 
@@ -274,11 +274,11 @@ def ps_scat(stats_df, rev_df):
     ax.set_xlabel('Price/Sale Ratio')
     plt.title('P/S Ratio to Rev Growth (Most Recent)')
     for i, txt in enumerate(scat.Comp):
-        ax.annotate(txt, (scat.PsRatio[i] + radius[i]/1000 + 0.8, scat.TotalRevenue_Gro[i]))
+        ax.annotate(txt, (scat.PsRatio[i] + 0.2, scat.TotalRevenue_Gro[i]))
     for m, mc in enumerate(scat.TotalRevenue):
         ax.annotate(
             '$' + str(int(mc/1000000)) + 'm',
-            (scat.PsRatio[m] + radius[m]/1000 + 0.8, scat.TotalRevenue_Gro[m] - 0.015),
+            (scat.PsRatio[m] + 0.2, scat.TotalRevenue_Gro[m] - 0.05),
             size=8
         )
     plt.show()
