@@ -122,7 +122,7 @@ def import_stats():
     for f in range(len(files)):
 
         # Load file
-        file = pd.read_csv(files[f], thousands=',')
+        file = pd.read_csv(files[f], thousands=',', skipinitialspace=True)
 
         # Cleanup ticker
         file['Comp'] = files[f][26:30].replace('_', '').replace('q', '').replace('u', '')
@@ -169,6 +169,7 @@ def rev_gro_calc(df):
 # Group Revenue Growth Trends
 def group_trend(rev_df, start_yr=2010):
 
+    plt.figure()
     sns.lineplot(
         x='Date',
         y='TotalRevenue_Gro',
@@ -213,8 +214,8 @@ def rev_trend(data, ticker, range=60):
     ax2.plot(rev_stats.Date, rev_stats['TotalRevenue_Gro'], 'o-', color='black', label='Revenue Growth', linewidth=3)
     #ax2.plot(rev_stats.Date, rev_stats['CostOfRevenue_Gro'], '.-', color='purple', label='COGS Growth')
     #ax2.plot(rev_stats.Date, rev_stats['OtherGandA_Gro'], '.-', color='orange', label='G&A Growth')
-    #ax2.plot(rev_stats.Date, rev_stats['SellingAndMarketingExpense_Gro'], '.-', color='green', label='S&M Growth')
-    #ax2.plot(rev_stats.Date, rev_stats['ResearchAndDevelopment_Gro'], '.-', color='blue', label='R&D Growth')
+    ax2.plot(rev_stats.Date, rev_stats['SellingAndMarketingExpense_Gro'], '.-', color='green', label='S&M Growth')
+    ax2.plot(rev_stats.Date, rev_stats['ResearchAndDevelopment_Gro'], '.-', color='blue', label='R&D Growth')
 
     ax2.legend(loc='upper left')
 
