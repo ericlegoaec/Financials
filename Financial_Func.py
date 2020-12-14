@@ -23,7 +23,7 @@ import numpy as np
 def load_fin(userid, password, tickers):
 
     # Clear prior downloads
-    downloads = glob.glob('C:/Users/gerard/Downloads/*')
+    downloads = glob.glob('C:/Users/gmazi/Downloads/*')
     for d in downloads:
         os.remove(d)
 
@@ -52,7 +52,9 @@ def load_fin(userid, password, tickers):
         time.sleep(3)
         driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
         time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+        driver.find_element_by_xpath(
+            '//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]'
+        ).click()
         time.sleep(3)
 
         # Balance Sheet
@@ -60,7 +62,9 @@ def load_fin(userid, password, tickers):
         time.sleep(3)
         driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
         time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+        driver.find_element_by_xpath(
+            '//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]'
+        ).click()
         time.sleep(3)
 
         # Cash Flows
@@ -68,13 +72,17 @@ def load_fin(userid, password, tickers):
         time.sleep(3)
         driver.find_element_by_xpath('//*[@class="P(0px) M(0px) C($linkColor) Bd(0px) O(n)"]').click()
         time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+        driver.find_element_by_xpath(
+            '//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]'
+        ).click()
         time.sleep(3)
 
         # Statistics
         driver.get('https://finance.yahoo.com/quote/' + t + '/key-statistics?p=' + t)
         time.sleep(3)
-        driver.find_element_by_xpath('//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]').click()
+        driver.find_element_by_xpath(
+            '//*[@class="Pos(r) smplTblTooltip C($linkColor) BdStart Bdc($seperatorColor) Pstart(10px) Mstart(10px)"]'
+        ).click()
         time.sleep(3)
 
     driver.quit()
@@ -85,7 +93,7 @@ def load_fin(userid, password, tickers):
 # Merge financials
 
 def import_fin():
-    files = [f for f in glob.glob('C:/Users/gerard/Downloads/*') if 'valuation' not in f]
+    files = [f for f in glob.glob('C:/Users/gmazi/Downloads/*') if 'valuation' not in f]
     financials = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
 
     for f in range(len(files)):
@@ -94,7 +102,7 @@ def import_fin():
         file = pd.read_csv(files[f], thousands=',')
 
         # Cleanup ticker
-        file['Comp'] = files[f][26:30].replace('_', '').replace('q', '').replace('u', '')
+        file['Comp'] = files[f][25:30].replace('_', '').replace('q', '').replace('u', '')
 
         # Convert to long format
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
@@ -116,7 +124,7 @@ def import_fin():
 # Merge stats
 
 def import_stats():
-    files = [f for f in glob.glob('C:/Users/gerard/Downloads/*') if 'valuation' in f]
+    files = [f for f in glob.glob('C:/Users/gmazi/Downloads/*') if 'valuation' in f]
     stats = pd.DataFrame({'Comp': [], 'name': [], 'Date': [], 'Value': []})
 
     for f in range(len(files)):
@@ -125,7 +133,7 @@ def import_stats():
         file = pd.read_csv(files[f], thousands=',', skipinitialspace=True)
 
         # Cleanup ticker
-        file['Comp'] = files[f][26:30].replace('_', '').replace('q', '').replace('u', '')
+        file['Comp'] = files[f][25:30].replace('_', '').replace('q', '').replace('u', '')
 
         # Convert to long format
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
@@ -145,20 +153,29 @@ def import_stats():
 ################################################################################################
 # Revenue Growth Data Frame
 
-def rev_gro_calc(df):
+def rev_gro_calc(data):
     field = [
         'TotalRevenue', 'CostOfRevenue', 'OtherGandA', 'SellingAndMarketingExpense' ,
         'ResearchAndDevelopment', 'OperatingIncome'
     ]
 
     # Calc year over year growth rate
-    rev = df.groupby(['Comp', 'Date'])['Value'].sum().reset_index()[['Comp', 'Date']]
+    rev = data.groupby(['Comp', 'Date'])['Value'].sum().reset_index()[['Comp', 'Date']]
 
+    # Calc revenue growth
     for f in field[: -1]:
-        rev_temp = df[df.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f).reset_index()
+        rev_temp = data[data.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f).reset_index()
         rev_temp[f + '_Gro'] = rev_temp.groupby('Comp')[f].apply(lambda g: g.pct_change(periods=4))
 
         rev = pd.concat([rev, rev_temp[[f, f + '_Gro']]], axis=1)
+
+    # Calc cost pct of revenue
+    rev['S&M_pct_Rev'] = rev.SellingAndMarketingExpense / rev.TotalRevenue
+    rev['R&D_pct_Rev'] = rev.ResearchAndDevelopment / rev.TotalRevenue
+
+    # Calc revenue per cost
+    rev['Rev_per_S&M'] = rev.TotalRevenue / rev.SellingAndMarketingExpense
+    rev['Rev_per_R&D'] = rev.TotalRevenue / rev.ResearchAndDevelopment
 
     return rev
 
@@ -180,13 +197,14 @@ def group_trend(rev_df, start_yr=2010):
     plt.grid()
     plt.show()
 
+    print(rev_df.groupby(['Date', 'Comp'])['TotalRevenue_Gro'].sum().unstack()[str(start_yr):])
+
 ################################################################################################
 # Individual Stock Revenue Trends
 
 def rev_trend(data, ticker, range=60):
 
     # Source Data
-    gro_stats = []
     rev_stats = data.loc[
         data.Comp == ticker,
         [
@@ -236,7 +254,7 @@ def ps_trend(data, start_yr=2010):
         x='Date',
         y='Value',
         hue='Comp',
-        data=data.loc[(data.name == 'PsRatio')&(data.Date >= str(start_yr)), :],
+        data=data.loc[(data.name == 'PsRatio') & (data.Date >= str(start_yr)), :],
         linewidth=3
     )
     plt.ylabel('Price/Sales Ratio')
@@ -274,16 +292,72 @@ def ps_scat(stats_df, rev_df):
     ax.set_ylabel('Revenue Growth')
     ax.set_xlabel('Price/Sale Ratio')
     plt.title('P/S Ratio to Rev Growth (Most Recent)')
+
+    # Axis range
+    min_y = min(0, scat.TotalRevenue_Gro.min())
+    max_y = max(1, scat.TotalRevenue_Gro.max())
+    min_x = min(0, scat.PsRatio.min())
+    max_x = max(100, scat.PsRatio.max())
+
+    plt.ylim(min_y, max_y)
+    plt.xlim(min_x, max_x)
+
+    # Comp point label
     for i, txt in enumerate(scat.Comp):
-        ax.annotate(txt, (scat.PsRatio[i] + 0.2, scat.TotalRevenue_Gro[i]))
+        ax.annotate(
+            txt,
+            (
+                scat.PsRatio[i] + (max_x - min_x) * 0.002,             # X offset
+                scat.TotalRevenue_Gro[i]                                # Y offset
+            )
+        )
+
+    # Total Revenue Label
     for m, mc in enumerate(scat.TotalRevenue):
         ax.annotate(
             '$' + str(int(mc/1000000)) + 'm',
-            (scat.PsRatio[m] + 0.2, scat.TotalRevenue_Gro[m] - 0.05),
+            (
+                scat.PsRatio[m] + (max_x - min_x) * 0.002,              # x offset
+                scat.TotalRevenue_Gro[m] - (max_y - min_y) * 0.025      # y offset
+            ),
             size=8
         )
+
     plt.show()
+    plt.tight_layout()
 
     print(scat)
 
-# Ratio: Sales per S&M spend
+
+###############################################################################################
+# Cost stats
+def cost_stats(rev_df, start_yr=2018):
+
+    fig, ax = plt.subplots(2, 2)
+    sns.lineplot(x='Date', y='R&D_pct_Rev', hue='Comp', data=rev_df[rev_df.Date > str(start_yr)],
+        linewidth=3,
+        ax=ax[0, 0]
+    ).set_title('R&D percent of Revenue')
+    sns.lineplot(x='Date', y='S&M_pct_Rev', hue='Comp', data=rev_df[rev_df.Date > str(start_yr)],
+        linewidth=3,
+        ax=ax[0, 1]
+    ).set_title('S&M percent of Revenue')
+    sns.lineplot(x='Date', y='Rev_per_R&D', hue='Comp', data=rev_df[rev_df.Date > str(start_yr)],
+        linewidth=3,
+        ax=ax[1, 0]
+    ).set_title('Revevenue per R&D')
+    sns.lineplot(x='Date', y='Rev_per_S&M', hue='Comp', data=rev_df[rev_df.Date > str(start_yr)],
+        linewidth=3,
+        ax=ax[1, 1]
+    ).set_title('Revenue per S&M')
+    ax[0, 0].grid()
+    ax[0, 1].grid()
+    ax[1, 0].grid()
+    ax[1, 1].grid()
+    plt.setp(ax[0, 0].get_xticklabels(), rotation=30)
+    plt.setp(ax[0, 1].get_xticklabels(), rotation=30)
+    plt.setp(ax[1, 0].get_xticklabels(), rotation=30)
+    plt.setp(ax[1, 1].get_xticklabels(), rotation=30)
+    fig.tight_layout()
+    fig.suptitle('Cost Statistics', fontsize=14)
+    plt.show()
