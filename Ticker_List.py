@@ -1,0 +1,5 @@
+CDN =           ['FSLY', 'AKAM', 'NET', 'LLNW', 'RXT', 'GDDY']
+DEVOPS =        ['DDOG', 'DT', 'ESTC', 'NEWR', 'PD', 'SPLK', 'FROG', 'SUMO']
+SECUR =         ['OKTA', 'ZS', 'CRWD']
+ADVTS =         ['TTD', 'MGNI', 'HUBS', 'APPS', 'PUBM']
+DATA =          ['SNOW', 'BOX', 'DBX', 'AYX', 'CLDR', 'MDB', 'NCNO']
