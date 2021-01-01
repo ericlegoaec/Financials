@@ -7,26 +7,27 @@ from Financial_Func import load_fin, import_fin, import_stats, rev_gro_calc, rev
 
 import Ticker_List as tl
 
-tickers = tl.ADVTS
+tickers = tl.SECUR
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
 fin = import_fin()
 stats = import_stats()
-revenue = rev_gro_calc(fin)
+revenue = rev_gro_calc(fin, tickers)
 
 # Revenue growth trend
-group_trend(rev_df=revenue, start_yr=2017)
+group_trend(rev_df=revenue, tickers=tickers, start_yr=2016)
 
 # Revenue trend
-rev_trend(data=revenue, ticker='SUMO', range=60)
+rev_trend(data=revenue, ticker='DDOG', range=60)
 [rev_trend(data=revenue, ticker=t, range=60) for t in tickers]
 
 # Price to Sales History
-ps_trend(data=stats, start_yr=2017)
+ps_trend(data=stats, tickers=tickers, start_yr=2017)
 
 # Price to Sales Scatter
-ps_scat(stats_df=stats, rev_df=revenue)
+ps_scat(stats_df=stats, rev_df=revenue, tickers=tickers)
 
 # Cost statistics
-cost_stats(rev_df=revenue)
+cost_stats(rev_df=revenue, tickers=tickers)
+

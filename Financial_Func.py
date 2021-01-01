@@ -153,13 +153,14 @@ def import_stats():
 ################################################################################################
 # Revenue Growth Data Frame
 
-def rev_gro_calc(data):
+def rev_gro_calc(data, tickers):
     field = [
-        'TotalRevenue', 'CostOfRevenue', 'OtherGandA', 'SellingAndMarketingExpense' ,
+        'TotalRevenue', 'CostOfRevenue', 'OtherGandA', 'SellingAndMarketingExpense',
         'ResearchAndDevelopment', 'OperatingIncome'
     ]
 
     # Calc year over year growth rate
+    data = data[data.Comp.isin(tickers)]
     rev = data.groupby(['Comp', 'Date'])['Value'].sum().reset_index()[['Comp', 'Date']]
 
     # Calc revenue growth
@@ -167,7 +168,7 @@ def rev_gro_calc(data):
         rev_temp = data[data.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f).reset_index()
         rev_temp[f + '_Gro'] = rev_temp.groupby('Comp')[f].apply(lambda g: g.pct_change(periods=4))
 
-        rev = pd.concat([rev, rev_temp[[f, f + '_Gro']]], axis=1)
+        rev = pd.merge(rev, rev_temp, how='left', on=['Comp', 'Date'])
 
     # Calc cost pct of revenue
     rev['S&M_pct_Rev'] = rev.SellingAndMarketingExpense / rev.TotalRevenue
@@ -184,7 +185,9 @@ def rev_gro_calc(data):
 
 ################################################################################################
 # Group Revenue Growth Trends
-def group_trend(rev_df, start_yr=2010):
+def group_trend(rev_df, tickers, start_yr=2010):
+
+    rev_df = rev_df[rev_df.Comp.isin(tickers)]
 
     plt.figure()
     sns.lineplot(
@@ -247,14 +250,17 @@ def rev_trend(data, ticker, range=60):
 
 ################################################################################################
 # Price/Sales Group Trend
-def ps_trend(data, start_yr=2010):
+def ps_trend(data, tickers, start_yr=2010):
+
+    data = data[data.Comp.isin(tickers)]
+    data = data.loc[(data.name == 'PsRatio') & (data.Date >= str(start_yr)), :]
 
     plt.figure()
     sns.lineplot(
         x='Date',
         y='Value',
         hue='Comp',
-        data=data.loc[(data.name == 'PsRatio') & (data.Date >= str(start_yr)), :],
+        data=data,
         linewidth=3
     )
     plt.ylabel('Price/Sales Ratio')
@@ -262,13 +268,16 @@ def ps_trend(data, start_yr=2010):
     plt.grid()
     plt.show()
 
+    print(data.groupby(['Date', 'Comp'])['Value'].sum().unstack())
+
 
 ################################################################################################
 # Price/Sales Group Scatter Plot
 
-def ps_scat(stats_df, rev_df):
+def ps_scat(stats_df, rev_df, tickers):
+    stats_df = stats_df[stats_df.Comp.isin(tickers)]
     scat = pd.merge(
-        stats_df[stats_df.Date == stats_df.Date.max()]
+        stats_df.loc[stats_df.Date == stats_df.Date.max()]
             .groupby(['Comp', 'name'])['Value']
             .sum()
             .unstack()[['PsRatio']],
@@ -331,7 +340,9 @@ def ps_scat(stats_df, rev_df):
 
 ###############################################################################################
 # Cost stats
-def cost_stats(rev_df, start_yr=2018):
+def cost_stats(rev_df, tickers, start_yr=2018):
+
+    rev_df = rev_df[rev_df.Comp.isin(tickers)]
 
     fig, ax = plt.subplots(2, 2)
     sns.lineplot(x='Date', y='R&D_pct_Rev', hue='Comp', data=rev_df[rev_df.Date > str(start_yr)],
