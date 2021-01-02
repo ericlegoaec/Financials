@@ -153,7 +153,7 @@ def import_stats():
 ################################################################################################
 # Revenue Growth Data Frame
 
-def rev_gro_calc(data, tickers):
+def fin_calc(data, tickers):
     field = [
         'TotalRevenue', 'CostOfRevenue', 'OtherGandA', 'SellingAndMarketingExpense',
         'ResearchAndDevelopment', 'OperatingIncome'
@@ -178,9 +178,33 @@ def rev_gro_calc(data, tickers):
     rev['Rev_per_S&M'] = rev.TotalRevenue / rev.SellingAndMarketingExpense
     rev['Rev_per_R&D'] = rev.TotalRevenue / rev.ResearchAndDevelopment
 
-    return rev
+    # Merge shares outstanding
+    rev = pd.merge(
+        rev,
+        data[data.name == 'DilutedAverageShares']
+            .groupby(['Comp', 'Date'])['Value']
+            .sum()
+            .replace(to_replace=0, method='ffill')
+            .rename('Shares'),
+        how='left',
+        on=['Comp', 'Date']
+    )
 
-    del f, field, rev_temp, rev
+    # Merge Free Cash Flows
+    rev = pd.merge(
+        rev,
+        data[data.name == 'FreeCashFlow']
+            .groupby(['Comp', 'Date'])['Value']
+            .sum()
+            .rename('FCF'),
+        how='left',
+        on=['Comp', 'Date']
+    )
+
+    # Calc Free Cash Flows per share
+    rev['FCF_Share'] = rev.FCF / rev.Shares
+
+    return rev
 
 
 ################################################################################################
@@ -245,8 +269,6 @@ def rev_trend(data, ticker, range=60):
     plt.title(ticker +  ' Revenue Growth (YoY)')
     plt.grid(True)
     plt.show()
-
-
 
 ################################################################################################
 # Price/Sales Group Trend
@@ -371,4 +393,52 @@ def cost_stats(rev_df, tickers, start_yr=2018):
     plt.setp(ax[1, 1].get_xticklabels(), rotation=30)
     fig.tight_layout()
     fig.suptitle('Cost Statistics', fontsize=14)
+    plt.show()
+
+####################################################################################################
+# FCF / Share Trend all Comps
+def fcf_sh_trend(data, tickers, start_yr=2010):
+
+    fin_df = data[data.Comp.isin(tickers)]
+
+    plt.figure()
+    sns.lineplot(
+        x='Date',
+        y='FCF_Share',
+        hue='Comp',
+        data=fin_df[fin_df.Date > str(start_yr)],
+        linewidth=3
+    ).set_title('Free Cash Flows per Share Trend')
+    plt.grid()
+    plt.axhline(0, ls='--', c='black', linewidth=2)
+    plt.show()
+
+    print(fin_df.groupby(['Date', 'Comp'])['FCF_Share'].sum().unstack()[str(start_yr):])
+
+####################################################################################################
+# FCF Trend on individual comps
+def fcf_comp_trend(data, ticker, range=60):
+
+    # Source Data
+    fcf_stats = data.loc[data.Comp == ticker, ['Date', 'FCF', 'FCF_Share']]
+
+    # Format to Millions
+    fcf_stats['FCF'] = fcf_stats.FCF / 1000000
+
+    # Time frame
+    fcf_stats = fcf_stats.tail(range)
+
+    # Plot
+    plt.figure()
+    ax1 = plt.subplot(111)
+    ax2 = ax1.twinx()
+    ax1.bar(fcf_stats.Date, fcf_stats.FCF, width=80, color='Lightgray', label='Free Cash Flows')
+    ax2.plot(fcf_stats.Date, fcf_stats['FCF_Share'], 'o-', color='black', label='FCF per Share', linewidth=3)
+
+    ax2.legend(loc='upper left')
+
+    ax1.set_ylabel('Free Cash Flows (millions)')
+    ax2.set_ylabel('Free Cash Flows per Share')
+    plt.title(ticker +  ' Free Cash Flows')
+    plt.grid(True)
     plt.show()
