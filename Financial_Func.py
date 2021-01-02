@@ -156,7 +156,7 @@ def import_stats():
 def fin_calc(data, tickers):
     field = [
         'TotalRevenue', 'CostOfRevenue', 'OtherGandA', 'SellingAndMarketingExpense',
-        'ResearchAndDevelopment', 'OperatingIncome'
+        'ResearchAndDevelopment'
     ]
 
     # Calc year over year growth rate
@@ -164,7 +164,7 @@ def fin_calc(data, tickers):
     rev = data.groupby(['Comp', 'Date'])['Value'].sum().reset_index()[['Comp', 'Date']]
 
     # Calc revenue growth
-    for f in field[: -1]:
+    for f in field:
         rev_temp = data[data.name == f].groupby(['Comp', 'Date'])['Value'].sum().rename(f).reset_index()
         rev_temp[f + '_Gro'] = rev_temp.groupby('Comp')[f].apply(lambda g: g.pct_change(periods=4))
 
@@ -177,6 +177,44 @@ def fin_calc(data, tickers):
     # Calc revenue per cost
     rev['Rev_per_S&M'] = rev.TotalRevenue / rev.SellingAndMarketingExpense
     rev['Rev_per_R&D'] = rev.TotalRevenue / rev.ResearchAndDevelopment
+
+    # Gross Profit
+    rev = pd.merge(
+        rev,
+        data[data.name == 'GrossProfit']
+            .groupby(['Comp', 'Date'])['Value']
+            .sum()
+            .rename('GrossProfit'),
+        how='left',
+        on=['Comp', 'Date']
+    )
+
+    # Operating Profit
+    rev = pd.merge(
+        rev,
+        data[data.name == 'OperatingIncome']
+            .groupby(['Comp', 'Date'])['Value']
+            .sum()
+            .rename('OperatingIncome'),
+        how='left',
+        on=['Comp', 'Date']
+    )
+
+    # Net Profit
+    rev = pd.merge(
+        rev,
+        data[data.name == 'NetIncome']
+            .groupby(['Comp', 'Date'])['Value']
+            .sum()
+            .rename('NetIncome'),
+        how='left',
+        on=['Comp', 'Date']
+    )
+
+    # Margin Calc
+    rev['Gross_Prof_Marg'] = rev.GrossProfit / rev.TotalRevenue
+    rev['Ops_Prof_Marg'] = rev.OperatingIncome / rev.TotalRevenue
+    rev['Net_Prof_Marg'] = rev.NetIncome / rev.TotalRevenue
 
     # Merge shares outstanding
     rev = pd.merge(
@@ -440,5 +478,92 @@ def fcf_comp_trend(data, ticker, range=60):
     ax1.set_ylabel('Free Cash Flows (millions)')
     ax2.set_ylabel('Free Cash Flows per Share')
     plt.title(ticker +  ' Free Cash Flows')
+    plt.grid(True)
+    plt.show()
+
+#################################################################################################
+# Gross Profit Margin Individual Comp
+
+def gross_prof(data, ticker, range=60):
+
+    # Source Data
+    gross_stats = data.loc[data.Comp == ticker, ['Date', 'GrossProfit', 'Gross_Prof_Marg']]
+
+    # Format to Millions
+    gross_stats['GrossProfit'] = gross_stats.GrossProfit / 1000000
+
+    # Time frame
+    gross_stats = gross_stats.tail(range)
+
+    # Plot
+    plt.figure()
+    ax1 = plt.subplot(111)
+    ax2 = ax1.twinx()
+    ax1.bar(gross_stats.Date, gross_stats.GrossProfit, width=80, color='Lightgray', label='Gross Profit')
+    ax2.plot(gross_stats.Date, gross_stats['Gross_Prof_Marg'], 'o-', color='black', label='Gross Profit Margin', linewidth=3)
+
+    ax2.legend(loc='upper left')
+
+    ax1.set_ylabel('Gross Profit (millions)')
+    ax2.set_ylabel('Gross Profit Margin')
+    plt.title(ticker +  ' Gross Profit')
+    plt.grid(True)
+    plt.show()
+
+#################################################################################################
+# Operating Profit Margin Individual Comp
+
+def ops_prof(data, ticker, range=60):
+
+    # Source Data
+    ops_stats = data.loc[data.Comp == ticker, ['Date', 'OperatingIncome', 'Ops_Prof_Marg']]
+
+    # Format to Millions
+    ops_stats['OperatingIncome'] = ops_stats.OperatingIncome / 1000000
+
+    # Time frame
+    ops_stats = ops_stats.tail(range)
+
+    # Plot
+    plt.figure()
+    ax1 = plt.subplot(111)
+    ax2 = ax1.twinx()
+    ax1.bar(ops_stats.Date, ops_stats.OperatingIncome, width=80, color='Lightgray', label='Operating Profit')
+    ax2.plot(ops_stats.Date, ops_stats['Ops_Prof_Marg'], 'o-', color='black', label='Operating Profit Margin', linewidth=3)
+
+    ax2.legend(loc='upper left')
+
+    ax1.set_ylabel('Operating Profit (millions)')
+    ax2.set_ylabel('Operating Profit Margin')
+    plt.title(ticker +  ' Operating Profit')
+    plt.grid(True)
+    plt.show()
+
+#################################################################################################
+# Net Profit Margin Individual Comp
+
+def net_prof(data, ticker, range=60):
+
+    # Source Data
+    net_stats = data.loc[data.Comp == ticker, ['Date', 'NetIncome', 'Net_Prof_Marg']]
+
+    # Format to Millions
+    net_stats['NetIncome'] = net_stats.NetIncome / 1000000
+
+    # Time frame
+    net_stats = net_stats.tail(range)
+
+    # Plot
+    plt.figure()
+    ax1 = plt.subplot(111)
+    ax2 = ax1.twinx()
+    ax1.bar(net_stats.Date, net_stats.NetIncome, width=80, color='Lightgray', label='Net Profit')
+    ax2.plot(net_stats.Date, net_stats['Net_Prof_Marg'], 'o-', color='black', label='Net Profit Margin', linewidth=3)
+
+    ax2.legend(loc='upper left')
+
+    ax1.set_ylabel('Net Profit (millions)')
+    ax2.set_ylabel('Net Profit Margin')
+    plt.title(ticker +  ' Net Profit')
     plt.grid(True)
     plt.show()

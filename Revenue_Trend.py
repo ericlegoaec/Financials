@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_trend, ps_scat, \
-    group_trend, ps_trend, cost_stats, fcf_sh_trend, fcf_comp_trend
+    group_trend, ps_trend, cost_stats, fcf_sh_trend, fcf_comp_trend, gross_prof, ops_prof, net_prof
 
 import Ticker_List as tl
 
@@ -22,6 +22,16 @@ group_trend(rev_df=revenue, tickers=tickers, start_yr=2016)
 # Revenue trend on individual comps
 rev_trend(data=revenue, ticker='DDOG', range=60)
 [rev_trend(data=revenue, ticker=t, range=60) for t in tickers]
+
+# PROFIT TRENDS ############################################################################
+gross_prof(data=revenue, ticker='CRWD', range=12)
+[gross_prof(data=revenue, ticker=t, range=12) for t in tickers]
+
+ops_prof(data=revenue, ticker='CRWD', range=12)
+[ops_prof(data=revenue, ticker=t, range=12) for t in tickers]
+
+net_prof(data=revenue, ticker='CRWD', range=12)
+[net_prof(data=revenue, ticker=t, range=12) for t in tickers]
 
 # PRICE TO SALES TRENDS #####################################################################
 # Price to Sales History
