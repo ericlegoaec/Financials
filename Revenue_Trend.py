@@ -7,7 +7,7 @@ from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_tre
 
 import Ticker_List as tl
 
-tickers = tl.SECUR
+tickers = tl.RE
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
@@ -24,7 +24,7 @@ rev_trend(data=revenue, ticker='DDOG', range=60)
 [rev_trend(data=revenue, ticker=t, range=60) for t in tickers]
 
 # PROFIT TRENDS ############################################################################
-gross_prof(data=revenue, ticker='CRWD', range=12)
+gross_prof(data=revenue, ticker='RKT', range=12)
 [gross_prof(data=revenue, ticker=t, range=12) for t in tickers]
 
 ops_prof(data=revenue, ticker='CRWD', range=12)

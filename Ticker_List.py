@@ -1,6 +1,7 @@
 CDN =           ['FSLY', 'AKAM', 'NET', 'LLNW', 'RXT', 'GDDY']
 DEVOPS =        ['DDOG', 'DT', 'ESTC', 'NEWR', 'PD', 'SPLK', 'FROG', 'SUMO']
 SECUR =         ['OKTA', 'ZS', 'CRWD']
-ADVTS =         ['TTD', 'MGNI', 'HUBS', 'APPS', 'PUBM']
+ADVTS =         ['TTD', 'MGNI', 'HUBS', 'APPS', 'PUBM', 'ROKU', 'FUBO']
 DATA =          ['SNOW', 'BOX', 'DBX', 'AYX', 'CLDR', 'MDB', 'NCNO', 'AI']
 HEALTH =        ['VEEV', 'ACCD', 'SDGR', 'CERT', 'OTRK']
+RE =            ['RDFN', 'Z', 'OPEN', 'RKT']

@@ -102,7 +102,7 @@ def import_fin():
         file = pd.read_csv(files[f], thousands=',')
 
         # Cleanup ticker
-        file['Comp'] = files[f][25:30].replace('_', '').replace('q', '').replace('u', '')
+        file['Comp'] = files[f][25:30].replace('_', '').replace('q', '').replace('u', '').replace('a', '')
 
         # Convert to long format
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
@@ -133,7 +133,7 @@ def import_stats():
         file = pd.read_csv(files[f], thousands=',', skipinitialspace=True)
 
         # Cleanup ticker
-        file['Comp'] = files[f][25:30].replace('_', '').replace('q', '').replace('u', '')
+        file['Comp'] = files[f][25:30].replace('_', '').replace('q', '').replace('u', '').replace('a', '')
 
         # Convert to long format
         file = pd.melt(file, id_vars=['Comp', 'name'], var_name='Date', value_name='Value')
