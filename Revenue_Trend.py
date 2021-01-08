@@ -7,7 +7,7 @@ from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_tre
 
 import Ticker_List as tl
 
-tickers = tl.RE
+tickers = tl.ADHOC
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
@@ -17,21 +17,21 @@ revenue = fin_calc(fin, tickers)
 
 # REVENUE TRENDS ############################################################################
 # Revenue growth trend
-group_trend(rev_df=revenue, tickers=tickers, start_yr=2016)
+group_trend(rev_df=revenue, tickers=tickers, start_yr=2015)
 
 # Revenue trend on individual comps
-rev_trend(data=revenue, ticker='DDOG', range=60)
-[rev_trend(data=revenue, ticker=t, range=60) for t in tickers]
+rev_trend(data=revenue, ticker='TSLA', range=24)
+[rev_trend(data=revenue, ticker=t, range=36) for t in tickers]
 
 # PROFIT TRENDS ############################################################################
-gross_prof(data=revenue, ticker='RKT', range=12)
-[gross_prof(data=revenue, ticker=t, range=12) for t in tickers]
+gross_prof(data=revenue, ticker='MGNI', range=36)
+[gross_prof(data=revenue, ticker=t, range=36) for t in tickers]
 
-ops_prof(data=revenue, ticker='CRWD', range=12)
-[ops_prof(data=revenue, ticker=t, range=12) for t in tickers]
+ops_prof(data=revenue, ticker='MGNI', range=36)
+[ops_prof(data=revenue, ticker=t, range=36) for t in tickers]
 
-net_prof(data=revenue, ticker='CRWD', range=12)
-[net_prof(data=revenue, ticker=t, range=12) for t in tickers]
+net_prof(data=revenue, ticker='MGNI', range=36)
+[net_prof(data=revenue, ticker=t, range=36) for t in tickers]
 
 # PRICE TO SALES TRENDS #####################################################################
 # Price to Sales History
@@ -46,9 +46,9 @@ cost_stats(rev_df=revenue, tickers=tickers)
 
 # FREE CASH FLOWS TRENDS ####################################################################
 # Free Cash Flows per share
-fcf_sh_trend(data=revenue, tickers=tickers, start_yr=2017)
+fcf_sh_trend(data=revenue, tickers=tickers, start_yr=2015)
 
 # Free Cash Flows per share trend on individual comps
-fcf_comp_trend(data=revenue, ticker='OKTA', range=12)
-[fcf_comp_trend(data=revenue, ticker=t, range=60) for t in tickers]
+fcf_comp_trend(data=revenue, ticker='MGNI', range=12)
+[fcf_comp_trend(data=revenue, ticker=t, range=36) for t in tickers]
 

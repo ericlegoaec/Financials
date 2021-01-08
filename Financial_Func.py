@@ -259,6 +259,7 @@ def group_trend(rev_df, tickers, start_yr=2010):
         data=rev_df[rev_df.Date > str(start_yr)],
         linewidth=3
     ).set_title('Revenue Growth Trend')
+    plt.axhline(0, ls='--', c='black', linewidth=2)
     plt.grid()
     plt.show()
 
@@ -299,6 +300,7 @@ def rev_trend(data, ticker, range=60):
     #ax2.plot(rev_stats.Date, rev_stats['OtherGandA_Gro'], '.-', color='orange', label='G&A Growth')
     ax2.plot(rev_stats.Date, rev_stats['SellingAndMarketingExpense_Gro'], '.-', color='green', label='S&M Growth')
     ax2.plot(rev_stats.Date, rev_stats['ResearchAndDevelopment_Gro'], '.-', color='blue', label='R&D Growth')
+    ax2.axhline(0, ls='--', c='black', linewidth=2)
 
     ax2.legend(loc='upper left')
 
@@ -477,9 +479,11 @@ def fcf_comp_trend(data, ticker, range=60):
 
     ax1.set_ylabel('Free Cash Flows (millions)')
     ax2.set_ylabel('Free Cash Flows per Share')
-    plt.title(ticker +  ' Free Cash Flows')
+    plt.title(ticker + ' Free Cash Flows')
     plt.grid(True)
     plt.show()
+
+    print(fcf_stats)
 
 #################################################################################################
 # Gross Profit Margin Individual Comp
