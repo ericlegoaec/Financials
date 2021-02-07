@@ -7,7 +7,7 @@ from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_tre
 
 import Ticker_List as tl
 
-tickers = ['U', 'PINS', 'PTON', 'SNAP']
+tickers = tl.PORT_LARGE
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
@@ -40,7 +40,7 @@ net_prof(data=revenue, ticker='PINS', range=36)
 ps_trend(data=stats, tickers=tickers, start_yr=2015)
 
 # Price to Sales Scatter
-ps_scat(stats_df=stats, rev_df=revenue, tickers=tickers)
+ps_scat(stats_df=stats, rev_df=revenue, tickers=tickers, type='simple')
 
 # COST ALLOCATION ###########################################################################
 # Cost statistics

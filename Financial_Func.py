@@ -347,7 +347,7 @@ def ps_trend(data, tickers, start_yr=2010):
 ################################################################################################
 # Price/Sales Group Scatter Plot
 
-def ps_scat(stats_df, rev_df, tickers):
+def ps_scat(stats_df, rev_df, tickers, type='bubble'):
     stats_df = stats_df[stats_df.Comp.isin(tickers)]
     scat = pd.merge(
         stats_df.loc[stats_df.Date == stats_df.Date.max()]
@@ -366,47 +366,81 @@ def ps_scat(stats_df, rev_df, tickers):
 
     radius = scat.TotalRevenue/1000000
 
-    plt.figure()
-    ax = plt.subplot(111)
-    plt.grid(True)
-    ax.plot([0, 1], [0, 1], color='red', transform=ax.transAxes, linewidth=0.5)
-    ax.scatter(x=scat.PsRatio, y=scat.TotalRevenue_Gro, alpha=0.5, s=radius)
-    ax.set_ylabel('Revenue Growth')
-    ax.set_xlabel('Price/Sale Ratio')
-    plt.title('P/S Ratio to Rev Growth (Most Recent)')
+    if type == 'bubble':
+        plt.figure()
+        ax = plt.subplot(111)
+        plt.grid(True)
+        ax.plot([0, 1], [0, 1], color='red', transform=ax.transAxes, linewidth=0.5)
+        ax.scatter(x=scat.PsRatio, y=scat.TotalRevenue_Gro, alpha=0.5, s=radius)
+        ax.set_ylabel('Revenue Growth')
+        ax.set_xlabel('Price/Sale Ratio')
+        plt.title('P/S Ratio to Rev Growth (Most Recent)')
 
-    # Axis range
-    min_y = min(0, scat.TotalRevenue_Gro.min())
-    max_y = max(1, scat.TotalRevenue_Gro.max())
-    min_x = min(0, scat.PsRatio.min())
-    max_x = max(100, scat.PsRatio.max())
+        # Axis range
+        min_y = min(0, scat.TotalRevenue_Gro.min())
+        max_y = max(1, scat.TotalRevenue_Gro.max())
+        min_x = min(0, scat.PsRatio.min())
+        max_x = max(100, scat.PsRatio.max())
 
-    plt.ylim(min_y, max_y)
-    plt.xlim(min_x, max_x)
+        plt.ylim(min_y, max_y)
+        plt.xlim(min_x, max_x)
 
-    # Comp point label
-    for i, txt in enumerate(scat.Comp):
-        ax.annotate(
-            txt,
-            (
-                scat.PsRatio[i] + (max_x - min_x) * 0.002,             # X offset
-                scat.TotalRevenue_Gro[i]                                # Y offset
+        # Comp point label
+        for i, txt in enumerate(scat.Comp):
+            ax.annotate(
+                txt,
+                (
+                    scat.PsRatio[i] + (max_x - min_x) * 0.002,             # X offset
+                    scat.TotalRevenue_Gro[i]                                # Y offset
+                )
             )
-        )
 
-    # Total Revenue Label
-    for m, mc in enumerate(scat.TotalRevenue):
-        ax.annotate(
-            '$' + str(int(mc/1000000)) + 'm',
-            (
-                scat.PsRatio[m] + (max_x - min_x) * 0.002,              # x offset
-                scat.TotalRevenue_Gro[m] - (max_y - min_y) * 0.025      # y offset
-            ),
-            size=8
-        )
+        # Total Revenue Label
+        for m, mc in enumerate(scat.TotalRevenue):
+            ax.annotate(
+                '$' + str(int(mc/1000000)) + 'm',
+                (
+                    scat.PsRatio[m] + (max_x - min_x) * 0.002,              # x offset
+                    scat.TotalRevenue_Gro[m] - (max_y - min_y) * 0.025      # y offset
+                ),
+                size=8
+            )
 
-    plt.show()
-    plt.tight_layout()
+        plt.show()
+        plt.tight_layout()
+
+    elif type == 'simple':
+        plt.figure()
+        ax = plt.subplot(111)
+        plt.grid(True)
+        ax.plot([0, 1], [0, 1], color='red', transform=ax.transAxes, linewidth=0.5)
+        ax.scatter(x=scat.PsRatio, y=scat.TotalRevenue_Gro, alpha=0.5, s=30)
+        ax.set_ylabel('Revenue Growth')
+        ax.set_xlabel('Price/Sale Ratio')
+        plt.title('P/S Ratio to Rev Growth (Most Recent)')
+
+        # Axis range
+        min_y = min(0, scat.TotalRevenue_Gro.min())
+        max_y = max(1, scat.TotalRevenue_Gro.max())
+        min_x = min(0, scat.PsRatio.min())
+        max_x = max(100, scat.PsRatio.max())
+
+        plt.ylim(min_y, max_y)
+        plt.xlim(min_x, max_x)
+
+        # Comp point label
+        for i, txt in enumerate(scat.Comp):
+            ax.annotate(
+                txt,
+                (
+                    scat.PsRatio[i] + (max_x - min_x) * 0.002,     # X offset
+                    scat.TotalRevenue_Gro[i]                        # Y offset
+                ),
+                size=8
+            )
+
+        plt.show()
+        plt.tight_layout()
 
     print(scat)
 
