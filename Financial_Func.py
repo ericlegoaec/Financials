@@ -242,6 +242,17 @@ def fin_calc(data, tickers):
     # Calc Free Cash Flows per share
     rev['FCF_Share'] = rev.FCF / rev.Shares
 
+    # Merge balance sheet cash
+    rev = pd.merge(
+        rev,
+        data[data.name == 'CashCashEquivalentsAndShortTermInvestments']
+            .groupby(['Comp', 'Date'])['Value']
+            .sum()
+            .rename('Cash'),
+        how='left',
+        on=['Comp', 'Date']
+    )
+
     return rev
 
 
@@ -460,10 +471,10 @@ def fcf_sh_trend(data, tickers, start_yr=2010):
 def fcf_comp_trend(data, ticker, range=60):
 
     # Source Data
-    fcf_stats = data.loc[data.Comp == ticker, ['Date', 'FCF', 'FCF_Share']]
+    fcf_stats = data.loc[data.Comp == ticker, ['Date', 'Cash', 'FCF_Share']]
 
     # Format to Millions
-    fcf_stats['FCF'] = fcf_stats.FCF / 1000000
+    fcf_stats['Cash'] = fcf_stats.Cash / 1000000
 
     # Time frame
     fcf_stats = fcf_stats.tail(range)
@@ -472,14 +483,15 @@ def fcf_comp_trend(data, ticker, range=60):
     plt.figure()
     ax1 = plt.subplot(111)
     ax2 = ax1.twinx()
-    ax1.bar(fcf_stats.Date, fcf_stats.FCF, width=80, color='Lightgray', label='Free Cash Flows')
+    ax1.bar(fcf_stats.Date, fcf_stats.Cash, width=80, color='Lightgray', label='Cash')
     ax2.plot(fcf_stats.Date, fcf_stats['FCF_Share'], 'o-', color='black', label='FCF per Share', linewidth=3)
 
     ax2.legend(loc='upper left')
 
-    ax1.set_ylabel('Free Cash Flows (millions)')
+    ax1.set_ylabel('Cash (millions)')
     ax2.set_ylabel('Free Cash Flows per Share')
     plt.title(ticker + ' Free Cash Flows')
+    plt.axhline(0, ls='--', c='black', linewidth=2)
     plt.grid(True)
     plt.show()
 
