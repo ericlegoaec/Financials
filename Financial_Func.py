@@ -527,9 +527,33 @@ def fcf_comp_trend(data, ticker, range=60):
     plt.title(ticker + ' Free Cash Flows')
     plt.axhline(0, ls='--', c='black', linewidth=2)
     plt.grid(True)
+    align_yaxis(ax1, ax2)
     plt.show()
 
     print(fcf_stats)
+
+
+#################################################################################################
+# For Dual Axis share y=0
+def align_yaxis(ax1, ax2):
+    y_lims = np.array([ax.get_ylim() for ax in [ax1, ax2]])
+
+    # force 0 to appear on both axes, comment if don't need
+    y_lims[:, 0] = y_lims[:, 0].clip(None, 0)
+    y_lims[:, 1] = y_lims[:, 1].clip(0, None)
+
+    # normalize both axes
+    y_mags = (y_lims[:,1] - y_lims[:,0]).reshape(len(y_lims),1)
+    y_lims_normalized = y_lims / y_mags
+
+    # find combined range
+    y_new_lims_normalized = np.array([np.min(y_lims_normalized), np.max(y_lims_normalized)])
+
+    # denormalize combined range to get new axes
+    new_lim1, new_lim2 = y_new_lims_normalized * y_mags
+    ax1.set_ylim(new_lim1)
+    ax2.set_ylim(new_lim2)
+
 
 #################################################################################################
 # Gross Profit Margin Individual Comp
@@ -556,8 +580,11 @@ def gross_prof(data, ticker, range=60):
 
     ax1.set_ylabel('Gross Profit (millions)')
     ax2.set_ylabel('Gross Profit Margin')
-    plt.title(ticker +  ' Gross Profit')
+    plt.title(ticker + ' Gross Profit')
     plt.grid(True)
+    plt.axhline(0, ls='--', c='black', linewidth=2)
+
+    align_yaxis(ax1, ax2)
     plt.show()
 
 #################################################################################################
@@ -585,8 +612,11 @@ def ops_prof(data, ticker, range=60):
 
     ax1.set_ylabel('Operating Profit (millions)')
     ax2.set_ylabel('Operating Profit Margin')
-    plt.title(ticker +  ' Operating Profit')
+    plt.title(ticker + ' Operating Profit')
     plt.grid(True)
+    plt.axhline(0, ls='--', c='black', linewidth=2)
+
+    align_yaxis(ax1, ax2)
     plt.show()
 
 #################################################################################################
@@ -614,6 +644,9 @@ def net_prof(data, ticker, range=60):
 
     ax1.set_ylabel('Net Profit (millions)')
     ax2.set_ylabel('Net Profit Margin')
-    plt.title(ticker +  ' Net Profit')
+    plt.title(ticker + ' Net Profit')
     plt.grid(True)
+    plt.axhline(0, ls='--', c='black', linewidth=2)
+
+    align_yaxis(ax1, ax2)
     plt.show()
