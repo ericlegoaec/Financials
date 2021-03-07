@@ -650,3 +650,29 @@ def net_prof(data, ticker, range=60):
 
     align_yaxis(ax1, ax2)
     plt.show()
+
+######################################################################################################################
+# KPI Group Trend on several comps
+
+def kpi_group_trend(tickers, kpi, start_yr=2010):
+
+    # load data
+    data = pd.read_csv('kpi.csv', parse_dates=['Date'])
+
+    # target comps and KPI
+    data = data.loc[(data.Comp.isin(tickers)) & (data.KPI == kpi) & (data.Date >= str(start_yr)), :]
+
+    plt.figure()
+    sns.lineplot(
+        x='Date',
+        y='Value',
+        hue='Comp',
+        data=data,
+        linewidth=3
+    )
+    plt.ylabel(kpi)
+    plt.title(kpi + ' Comp Trend')
+    plt.grid()
+    plt.show()
+
+    print(data.groupby(['Date', 'Comp'])['Value'].sum().unstack())
