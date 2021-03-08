@@ -671,8 +671,114 @@ def kpi_group_trend(tickers, kpi, start_yr=2010):
         linewidth=3
     )
     plt.ylabel(kpi)
-    plt.title(kpi + ' Comp Trend')
+    plt.title(kpi + ' Trend')
     plt.grid()
     plt.show()
 
     print(data.groupby(['Date', 'Comp'])['Value'].sum().unstack())
+
+######################################################################################################################
+# KPI Growth Trend on several comps
+
+def kpi_growth_trend(tickers, kpi, start_yr=2010):
+
+    # load data
+    data = pd.read_csv('kpi.csv', parse_dates=['Date'])
+
+    # target comps and KPI
+    data = data.loc[(data.Comp.isin(tickers)) & (data.KPI == kpi), :]
+
+    gro = pd.DataFrame({'Comp': [], 'Date': [], 'KPI': [], 'Value': [], 'Growth': []})
+
+    # Calc year over year growth rate
+    for t in tickers:
+        gro_temp = data[data.Comp == t].sort_values(by='Date')
+        gro_temp['Growth'] = gro_temp['Value'].pct_change(periods=4)
+
+        gro = pd.concat([gro, gro_temp], ignore_index=True)
+
+    gro = gro[gro.Date >= str(start_yr)]
+
+    plt.figure()
+    sns.lineplot(
+        x='Date',
+        y='Growth',
+        hue='Comp',
+        data=gro,
+        linewidth=3
+    )
+    plt.ylabel(kpi)
+    plt.title(kpi + ' Growth Trend')
+    plt.axhline(0, ls='--', c='black', linewidth=2)
+    plt.grid()
+    plt.show()
+
+    print(gro.groupby(['Date', 'Comp'])['Growth'].sum().unstack())
+
+######################################################################################################################
+# KPI Vintage analysis
+
+def kpi_vintage_trend(tickers, kpi):
+
+    # load data
+    data = pd.read_csv('kpi.csv', parse_dates=['Date'])
+
+    # target comps and KPI
+    data = data.loc[(data.Comp.isin(tickers)) & (data.KPI == kpi), :].sort_values(by=['Comp', 'Date'])
+
+    vin = pd.DataFrame({'Comp': [], 'Value': []})
+
+    for t in tickers:
+        vin_temp = data.loc[data.Comp == t, ['Comp', 'Value']].reset_index()[['Comp', 'Value']]
+        vin = pd.concat([vin, vin_temp], ignore_index=False)
+
+    vin = vin.reset_index()
+
+    plt.figure()
+    sns.lineplot(
+        x='index',
+        y='Value',
+        hue='Comp',
+        data=vin,
+        linewidth=3
+    )
+    plt.ylabel(kpi)
+    plt.xlabel('Quarters')
+    plt.title(kpi + ' Vintage Trend')
+    plt.grid()
+    plt.show()
+
+#################################################################################################
+# KPIs Individual Comp
+
+def kpi_comp_trend(ticker, kpi, range=60):
+
+    # load data
+    data = pd.read_csv('kpi.csv', parse_dates=['Date'])
+
+    # Isolate target kpi and comp
+    data = data.loc[(data.Comp == ticker) & (data.KPI == kpi), ['Date', 'Value']].sort_values(by='Date')
+
+    # Calc growth rate
+    data['Growth'] = data.Value.pct_change(periods=4)
+
+    # Time frame
+    data = data.tail(range)
+
+    # Plot
+    plt.figure()
+    ax1 = plt.subplot(111)
+    ax2 = ax1.twinx()
+    ax1.bar(data.Date, data['Value'], width=80, color='Lightgray', label=kpi)
+    ax2.plot(data.Date, data['Growth'], 'o-', color='black', label='YoY Growth', linewidth=3)
+
+    ax2.legend(loc='upper left')
+
+    ax1.set_ylabel(kpi)
+    ax2.set_ylabel('Growth')
+    plt.title(ticker + ' ' + kpi)
+    plt.grid(True)
+    plt.axhline(0, ls='--', c='black', linewidth=2)
+
+    align_yaxis(ax1, ax2)
+    plt.show()

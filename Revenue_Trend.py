@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns
 from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_trend, ps_scat, \
     group_trend, ps_trend, cost_stats, fcf_sh_trend, fcf_comp_trend, gross_prof, ops_prof, net_prof, \
-    kpi_group_trend
+    kpi_group_trend, kpi_comp_trend, kpi_growth_trend, kpi_vintage_trend
 
 import Ticker_List as tl
 
@@ -56,4 +56,14 @@ fcf_comp_trend(data=revenue, ticker='PINS', range=12)
 [fcf_comp_trend(data=revenue, ticker=t, range=60) for t in tickers]
 
 # KPIs ######################################################################################
-kpi_group_trend(tickers=['ETSY', 'SHOP'], kpi='Active Sellers')
+# Group based kpi comparison
+# ['Gross Merchandise Sales', 'Active Users', 'Active Sellers']
+kpi_group_trend(tickers=['TWTR', 'PINS', 'SNAP'], kpi='Active Users')
+
+kpi_growth_trend(tickers=['TWTR', 'PINS', 'SNAP'], kpi='Active Users')
+
+kpi_vintage_trend(tickers=['TWTR', 'PINS', 'SNAP'], kpi='Active Users')
+
+# Individual kpi trend
+kpi_comp_trend(ticker='ETSY', kpi='Gross Merchandise Sales', range=60)
+[kpi_comp_trend(ticker=t, kpi='Gross Merchandise Sales', range=60) for t in tickers]
