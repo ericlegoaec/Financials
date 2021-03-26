@@ -8,7 +8,7 @@ from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_tre
 
 import Ticker_List as tl
 
-tickers = ['DOCU', 'MGNI', 'CRWD', 'OKTA', 'NET']
+tickers = ['MGNI', 'PTON', 'U', 'API', 'ROKU','ETSY', 'PINS']
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
@@ -20,20 +20,20 @@ revenue = fin_calc(fin, tickers)
 
 # REVENUE TRENDS ############################################################################
 # Revenue growth trend
-group_trend(rev_df=revenue, tickers=tickers, start_yr=2010)
+group_trend(rev_df=revenue, tickers=tickers, start_yr=2015)
 
 # Revenue trend on individual comps
-rev_trend(data=revenue, ticker='AFRM', range=60)
+rev_trend(data=revenue, ticker='SE', range=60)
 [rev_trend(data=revenue, ticker=t, range=60) for t in tickers]
 
 # PROFIT TRENDS ############################################################################
-gross_prof(data=revenue, ticker='SQ', range=60)
+gross_prof(data=revenue, ticker='SE', range=60)
 [gross_prof(data=revenue, ticker=t, range=60) for t in tickers]
 
-ops_prof(data=revenue, ticker='PINS', range=36)
+ops_prof(data=revenue, ticker='SE', range=60)
 [ops_prof(data=revenue, ticker=t, range=60) for t in tickers]
 
-net_prof(data=revenue, ticker='ETSY', range=36)
+net_prof(data=revenue, ticker='SE', range=36)
 [net_prof(data=revenue, ticker=t, range=60) for t in tickers]
 
 # PRICE TO SALES TRENDS #####################################################################
@@ -52,13 +52,13 @@ cost_stats(rev_df=revenue, tickers=tickers)
 fcf_sh_trend(data=revenue, tickers=tickers, start_yr=2015)
 
 # Free Cash Flows per share trend on individual comps
-fcf_comp_trend(data=revenue, ticker='PINS', range=12)
+fcf_comp_trend(data=revenue, ticker='SE', range=60)
 [fcf_comp_trend(data=revenue, ticker=t, range=60) for t in tickers]
 
 # KPIs ######################################################################################
 # Group based kpi comparison
 # ['Gross Merchandise Sales', 'Active Users', 'Active Sellers']
-kpi_group_trend(tickers=['TWTR', 'PINS', 'SNAP'], kpi='Active Users')
+kpi_group_trend(tickers=tickers)
 
 kpi_growth_trend(tickers=['TWTR', 'PINS', 'SNAP'], kpi='Active Users')
 
@@ -67,3 +67,5 @@ kpi_vintage_trend(tickers=['TWTR', 'PINS', 'SNAP'], kpi='Active Users')
 # Individual kpi trend
 kpi_comp_trend(ticker='ETSY', kpi='Gross Merchandise Sales', range=60)
 [kpi_comp_trend(ticker=t, kpi='Gross Merchandise Sales', range=60) for t in tickers]
+
+

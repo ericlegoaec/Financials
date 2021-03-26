@@ -17,6 +17,7 @@ from datetime import date
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from numpy.polynomial.polynomial import polyfit
 
 ###############################################################################################
 # Download financials
@@ -410,6 +411,8 @@ def ps_scat(stats_df, rev_df, tickers, type='bubble'):
         plt.tight_layout()
 
     elif type == 'simple':
+
+
         plt.figure()
         ax = plt.subplot(111)
         plt.grid(True)
@@ -654,13 +657,13 @@ def net_prof(data, ticker, range=60):
 ######################################################################################################################
 # KPI Group Trend on several comps
 
-def kpi_group_trend(tickers, kpi, start_yr=2010):
+def kpi_group_trend(tickers, start_yr=2010):
 
     # load data
     data = pd.read_csv('kpi.csv', parse_dates=['Date'])
 
     # target comps and KPI
-    data = data.loc[(data.Comp.isin(tickers)) & (data.KPI == kpi) & (data.Date >= str(start_yr)), :]
+    data = data.loc[(data.Comp.isin(tickers)) & (data.Date >= str(start_yr)), :]
 
     plt.figure()
     sns.lineplot(
@@ -670,8 +673,8 @@ def kpi_group_trend(tickers, kpi, start_yr=2010):
         data=data,
         linewidth=3
     )
-    plt.ylabel(kpi)
-    plt.title(kpi + ' Trend')
+    plt.ylabel(data.KPI.values[0])
+    plt.title(data.KPI.values[0] + ' Trend')
     plt.grid()
     plt.show()
 
