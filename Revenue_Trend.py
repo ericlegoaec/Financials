@@ -8,7 +8,7 @@ from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_tre
 
 import Ticker_List as tl
 
-tickers = ['MGNI', 'PTON', 'U', 'API', 'ROKU','ETSY', 'PINS']
+tickers = ['FB', 'AAPL', 'PINS', 'SNAP', 'TWTR', 'NOW']
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
@@ -20,10 +20,10 @@ revenue = fin_calc(fin, tickers)
 
 # REVENUE TRENDS ############################################################################
 # Revenue growth trend
-group_trend(rev_df=revenue, tickers=tickers, start_yr=2015)
+group_trend(rev_df=revenue, tickers=tickers, start_yr=2018)
 
 # Revenue trend on individual comps
-rev_trend(data=revenue, ticker='SE', range=60)
+rev_trend(data=revenue, ticker='NOW', range=60)
 [rev_trend(data=revenue, ticker=t, range=60) for t in tickers]
 
 # PROFIT TRENDS ############################################################################
@@ -41,7 +41,7 @@ net_prof(data=revenue, ticker='SE', range=36)
 ps_trend(data=stats, tickers=tickers, start_yr=2015)
 
 # Price to Sales Scatter
-ps_scat(stats_df=stats, rev_df=revenue, tickers=tickers, type='bubble')
+ps_scat(stats_df=stats, rev_df=revenue, tickers=tickers, type='simple')
 
 # COST ALLOCATION ###########################################################################
 # Cost statistics
