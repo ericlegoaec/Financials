@@ -331,12 +331,15 @@ def rev_trend(data, ticker, range=60):
     plt.grid(True)
     plt.show()
 
+    print(rev_stats[['Date', 'TotalRevenue', 'TotalRevenue_Gro']])
+
 ################################################################################################
 # Price/Sales Group Trend
 def ps_trend(data, tickers, start_yr=2010):
 
     data = data[data.Comp.isin(tickers)]
     data = data.loc[(data.name == 'PsRatio') & (data.Date >= str(start_yr)), :]
+    data2 = data[data.Date == data.Date.max()].groupby(['Comp'])['Value'].sum().reset_index()
 
     plt.figure()
     sns.lineplot(
@@ -348,6 +351,14 @@ def ps_trend(data, tickers, start_yr=2010):
     )
     plt.ylabel('Price/Sales Ratio')
     plt.title('P/S Ratio Trend')
+    for i, c in enumerate(data2.Comp):
+        plt.annotate(
+            c,
+            (
+                data.Date.max(),
+                data2.Value[i]
+            )
+        )
     plt.grid()
     plt.show()
 
@@ -497,6 +508,7 @@ def cost_stats(rev_df, tickers, start_yr=2018):
 def fcf_sh_trend(data, tickers, start_yr=2010):
 
     fin_df = data[data.Comp.isin(tickers)]
+    fin_df2 = data[data.Date == data.Date.max()].groupby(['Comp'])['FCF_Share'].sum().reset_index()
 
     plt.figure()
     sns.lineplot(
@@ -508,6 +520,14 @@ def fcf_sh_trend(data, tickers, start_yr=2010):
     ).set_title('Free Cash Flows per Share Trend')
     plt.grid()
     plt.axhline(0, ls='--', c='black', linewidth=2)
+    for i, c in enumerate(fin_df2.Comp):
+        plt.annotate(
+            c,
+            (
+                fin_df.Date.max(),
+                fin_df2.FCF_Share[i]
+            )
+        )
     plt.show()
 
     print(fin_df.groupby(['Date', 'Comp'])['FCF_Share'].sum().unstack()[str(start_yr):])
@@ -673,6 +693,7 @@ def kpi_group_trend(tickers, start_yr=2010):
 
     # target comps and KPI
     data = data.loc[(data.Comp.isin(tickers)) & (data.Date >= str(start_yr)), :]
+    data2 = data[data.Date == data.Date.max()].groupby(['Comp'])['Value'].sum().reset_index()
 
     plt.figure()
     sns.lineplot(
@@ -684,6 +705,14 @@ def kpi_group_trend(tickers, start_yr=2010):
     )
     plt.ylabel(data.KPI.values[0])
     plt.title(data.KPI.values[0] + ' Trend')
+    for i, c in enumerate(data2.Comp):
+        plt.annotate(
+            c,
+            (
+                data.Date.max(),
+                data2.Value[i]
+            )
+        )
     plt.grid()
     plt.show()
 
@@ -710,6 +739,7 @@ def kpi_growth_trend(tickers, kpi, start_yr=2010):
         gro = pd.concat([gro, gro_temp], ignore_index=True)
 
     gro = gro[gro.Date >= str(start_yr)]
+    gro2 = gro[gro.Date == gro.Date.max()].groupby(['Comp'])['Growth'].sum().reset_index()
 
     plt.figure()
     sns.lineplot(
@@ -722,6 +752,14 @@ def kpi_growth_trend(tickers, kpi, start_yr=2010):
     plt.ylabel(kpi)
     plt.title(kpi + ' Growth Trend')
     plt.axhline(0, ls='--', c='black', linewidth=2)
+    for i, c in enumerate(gro2.Comp):
+        plt.annotate(
+            c,
+            (
+                gro.Date.max(),
+                gro2.Growth[i]
+            )
+        )
     plt.grid()
     plt.show()
 
@@ -759,6 +797,7 @@ def kpi_vintage_trend(tickers, kpi):
     plt.title(kpi + ' Vintage Trend')
     plt.grid()
     plt.show()
+
 
 #################################################################################################
 # KPIs Individual Comp

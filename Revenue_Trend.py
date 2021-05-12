@@ -8,7 +8,7 @@ from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_tre
 
 import Ticker_List as tl
 
-tickers = ['FB', 'AAPL', 'PINS', 'SNAP', 'TWTR', 'NOW']
+tickers = ['ROKU', 'ETSY', 'PINS', 'TWTR', 'SNAP', 'SHOP']
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
@@ -20,20 +20,20 @@ revenue = fin_calc(fin, tickers)
 
 # REVENUE TRENDS ############################################################################
 # Revenue growth trend
-group_trend(rev_df=revenue, tickers=tickers, start_yr=2018)
+group_trend(rev_df=revenue, tickers=tickers, start_yr=2015)
 
 # Revenue trend on individual comps
-rev_trend(data=revenue, ticker='NOW', range=60)
+rev_trend(data=revenue, ticker='LOW', range=24)
 [rev_trend(data=revenue, ticker=t, range=60) for t in tickers]
 
 # PROFIT TRENDS ############################################################################
-gross_prof(data=revenue, ticker='SE', range=60)
+gross_prof(data=revenue, ticker='TWLO', range=60)
 [gross_prof(data=revenue, ticker=t, range=60) for t in tickers]
 
-ops_prof(data=revenue, ticker='SE', range=60)
+ops_prof(data=revenue, ticker='TWLO', range=60)
 [ops_prof(data=revenue, ticker=t, range=60) for t in tickers]
 
-net_prof(data=revenue, ticker='SE', range=36)
+net_prof(data=revenue, ticker='TWLO', range=36)
 [net_prof(data=revenue, ticker=t, range=60) for t in tickers]
 
 # PRICE TO SALES TRENDS #####################################################################
@@ -41,7 +41,7 @@ net_prof(data=revenue, ticker='SE', range=36)
 ps_trend(data=stats, tickers=tickers, start_yr=2015)
 
 # Price to Sales Scatter
-ps_scat(stats_df=stats, rev_df=revenue, tickers=tickers, type='simple')
+ps_scat(stats_df=stats, rev_df=revenue, tickers=tickers, type='bubble')
 
 # COST ALLOCATION ###########################################################################
 # Cost statistics
@@ -52,20 +52,20 @@ cost_stats(rev_df=revenue, tickers=tickers)
 fcf_sh_trend(data=revenue, tickers=tickers, start_yr=2015)
 
 # Free Cash Flows per share trend on individual comps
-fcf_comp_trend(data=revenue, ticker='SE', range=60)
+fcf_comp_trend(data=revenue, ticker='TWLO', range=60)
 [fcf_comp_trend(data=revenue, ticker=t, range=60) for t in tickers]
 
 # KPIs ######################################################################################
 # Group based kpi comparison
 # ['Gross Merchandise Sales', 'Active Users', 'Active Sellers']
-kpi_group_trend(tickers=tickers)
+kpi_group_trend(tickers=['SHOP', 'ETSY'])
 
-kpi_growth_trend(tickers=['TWTR', 'PINS', 'SNAP'], kpi='Active Users')
+kpi_growth_trend(tickers=['SHOP', 'ETSY'], kpi='GMS')
 
-kpi_vintage_trend(tickers=['TWTR', 'PINS', 'SNAP'], kpi='Active Users')
+kpi_vintage_trend(tickers=['SHOP', 'ETSY'], kpi='GMS')
 
 # Individual kpi trend
-kpi_comp_trend(ticker='ETSY', kpi='Gross Merchandise Sales', range=60)
-[kpi_comp_trend(ticker=t, kpi='Gross Merchandise Sales', range=60) for t in tickers]
+kpi_comp_trend(ticker='SHOP', kpi='GMS', range=60)
+[kpi_comp_trend(ticker=t, kpi='GMS', range=60) for t in ['SHOP', 'ETSY']]
 
 
