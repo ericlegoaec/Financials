@@ -8,7 +8,7 @@ from Financial_Func import load_fin, import_fin, import_stats, fin_calc, rev_tre
 
 import Ticker_List as tl
 
-tickers = ['ROKU', 'ETSY', 'PINS', 'TWTR', 'SNAP', 'SHOP']
+tickers = ['ROKU', 'ETSY', 'PINS', 'SHOP']
 load_fin(userid='', password='', tickers=tickers)
 
 # Import revenue data
