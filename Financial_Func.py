@@ -262,7 +262,12 @@ def fin_calc(data, tickers):
 def group_trend(rev_df, tickers, start_yr=2010):
 
     rev_df = rev_df[rev_df.Comp.isin(tickers)]
-    rev_df2 = rev_df[rev_df.Date == rev_df.Date.max()].groupby(['Comp'])['TotalRevenue_Gro'].sum().reset_index()
+    rev_df2 = pd.merge(
+        rev_df.groupby('Comp')['Date'].max().reset_index(),
+        rev_df[['Date', 'Comp', 'TotalRevenue_Gro']],
+        how='left',
+        on=['Date', 'Comp']
+    )
 
     plt.figure()
     sns.lineplot(
@@ -277,7 +282,7 @@ def group_trend(rev_df, tickers, start_yr=2010):
         plt.annotate(
             c,
             (
-                rev_df.Date.max(),
+                rev_df2.Date[i],
                 rev_df2.TotalRevenue_Gro[i]
             )
         )
